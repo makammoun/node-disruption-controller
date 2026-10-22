@@ -182,6 +182,29 @@ The hook will be called with a POST method containing the JSON encoded NodeDisru
 
 Note: It is not a replacement for readiness probes but a complement.
 
+#### Notice period
+
+A budget can require advance notice before a disruption. Its hooks (health hook or V2 prepare/ready/terminate) are not called, and the disruption is not granted, before `anchor − noticePeriod`, where `anchor` is the NodeDisruption's `spec.startDate` if set, else its `spec.retry.deadline`. Use `noticePeriodOverrides` to set a different notice period for specific disruption types; overrides take precedence over the global `noticePeriod`.
+
+```yaml
+spec:
+  hookV2BasePath:
+    url: http://app-manager/api/v2
+  maxDisruptions: 1
+  supportedNodeDisruptionTypes:
+    - maintenance
+    - tor-maintenance
+  noticePeriod: 30m
+  noticePeriodOverrides:
+    - type: tor-maintenance
+      noticePeriod: 10m
+```
+
+- While a budget waits, its status reads `waiting for notice period (opens at …)` and the NodeDisruption stays pending. It is re-evaluated at the opening, or after the controller's retry interval if sooner, so a rescheduled disruption is taken into account.
+- A budget without notice period is not deferred, but the NodeDisruption is still granted only once every impacted budget is ready.
+- A NodeDisruption with neither `startDate` nor `retry.deadline` is not deferred, nor is one whose opening is already past (applications can still respond with 424).
+- The notice is consumed once a budget has started preparing (or is ready): moving the anchor out afterwards does not defer it again.
+
 #### Sample object
 
 ```yaml
