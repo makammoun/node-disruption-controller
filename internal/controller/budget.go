@@ -33,6 +33,8 @@ type Budget interface {
 	GetNamespacedName() nodedisruptionv1alpha1.NamespacedName
 	// Get the list of supported node disruption types for this budget
 	GetSupportedDisruptionTypes() []string
+	// Get the notice period for the given disruption type (zero = call hooks immediately)
+	NoticePeriodFor(disruptionType string) time.Duration
 }
 
 // PruneBudgetMetrics remove metrics for a Disruption Budget that doesn't exist anymore

@@ -99,8 +99,9 @@ func (r *ApplicationDisruptionBudgetReconciler) Reconcile(ctx context.Context, r
 	}
 
 	if len(adb.Spec.SupportedNodeDisruptionTypes) == 0 && len(r.Config.DefaultNodeDisruptionTypes) > 0 {
+		patch := client.MergeFrom(adb.DeepCopy())
 		adb.Spec.SupportedNodeDisruptionTypes = r.Config.DefaultNodeDisruptionTypes
-		if err := r.Update(ctx, adb); err != nil {
+		if err := r.Patch(ctx, adb, patch); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -240,6 +241,10 @@ func (r *ApplicationDisruptionBudgetResolver) GetNamespacedName() nodedisruption
 
 func (r *ApplicationDisruptionBudgetResolver) GetSupportedDisruptionTypes() []string {
 	return r.ApplicationDisruptionBudget.Spec.SupportedNodeDisruptionTypes
+}
+
+func (r *ApplicationDisruptionBudgetResolver) NoticePeriodFor(disruptionType string) time.Duration {
+	return r.ApplicationDisruptionBudget.Spec.NoticePeriodFor(disruptionType)
 }
 
 func (r *ApplicationDisruptionBudgetResolver) V2HooksReady() bool {
