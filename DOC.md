@@ -108,9 +108,8 @@ Maintenance will proceed only if the endpoint responds 2XX.<br/>
         <td>string</td>
         <td>
           NoticePeriod is the notice this application wants before a disruption. Hooks for this
-budget are not called, and the disruption is not granted, before anchor − noticePeriod,
-where anchor is the disruption's spec.startDate when set, else its retry deadline.
-A disruption with neither is not deferred.<br/>
+budget are not called, and the disruption is not granted, before the disruption's
+spec.startDate − noticePeriod. A disruption without startDate is not deferred.<br/>
         </td>
         <td>false</td>
       </tr><tr>

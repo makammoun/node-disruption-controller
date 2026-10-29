@@ -524,10 +524,10 @@ var _ = Describe("NodeDisruption controller", func() {
 					return disruption
 				}
 
-				setDeadline := func(key types.NamespacedName, deadline time.Time) {
+				setStartDate := func(key types.NamespacedName, startDate time.Time) {
 					disruption := getDisruption(Default, key)
 					patch := client.MergeFrom(disruption.DeepCopy())
-					disruption.Spec.Retry.Deadline = metav1.NewTime(deadline)
+					disruption.Spec.StartDate = metav1.NewTime(startDate)
 					Expect(k8sClient.Patch(ctx, disruption, patch)).Should(Succeed())
 				}
 
@@ -535,10 +535,9 @@ var _ = Describe("NodeDisruption controller", func() {
 					calls, hookURL := startHookServer(http.StatusOK)
 					createBudget("test-notice-wait", hookURL, time.Hour)
 
-					By("creating a NodeDisruption whose deadline puts the opening 1h out")
-					key := createDisruption("test-notice-wait", metav1.Time{}, nodedisruptionv1alpha1.RetrySpec{
-						Enabled:  false,
-						Deadline: metav1.NewTime(time.Now().Add(2 * time.Hour)),
+					By("creating a NodeDisruption whose startDate puts the opening 1h out")
+					key := createDisruption("test-notice-wait", metav1.NewTime(time.Now().Add(2*time.Hour)), nodedisruptionv1alpha1.RetrySpec{
+						Enabled: false,
 					})
 
 					By("checking the budget is waiting for its notice period")
@@ -556,14 +555,13 @@ var _ = Describe("NodeDisruption controller", func() {
 					}, 2*time.Second, interval).Should(Succeed())
 				})
 
-				It("takes a deadline pulled in during the wait into account", func() {
+				It("takes a startDate pulled in during the wait into account", func() {
 					calls, hookURL := startHookServer(http.StatusOK)
 					createBudget("test-notice-pulled-in", hookURL, time.Hour)
 
-					By("creating a NodeDisruption whose deadline puts the opening 1h out")
-					key := createDisruption("test-notice-pulled-in", metav1.Time{}, nodedisruptionv1alpha1.RetrySpec{
-						Enabled:  true,
-						Deadline: metav1.NewTime(time.Now().Add(2 * time.Hour)),
+					By("creating a NodeDisruption whose startDate puts the opening 1h out")
+					key := createDisruption("test-notice-pulled-in", metav1.NewTime(time.Now().Add(2*time.Hour)), nodedisruptionv1alpha1.RetrySpec{
+						Enabled: true,
 					})
 					Eventually(func(g Gomega) {
 						statuses := getDisruption(g, key).Status.DisruptedDisruptionBudgets
@@ -571,8 +569,8 @@ var _ = Describe("NodeDisruption controller", func() {
 						g.Expect(statuses[0].Reason).Should(ContainSubstring("waiting for notice period"))
 					}, timeout, interval).Should(Succeed())
 
-					By("pulling the deadline in so that the notice period is open")
-					setDeadline(key, time.Now().Add(time.Hour))
+					By("pulling the startDate in so that the notice period is open")
+					setStartDate(key, time.Now().Add(time.Hour))
 
 					By("checking the budget is prepared and the disruption granted")
 					Eventually(func(g Gomega) {
@@ -604,14 +602,13 @@ var _ = Describe("NodeDisruption controller", func() {
 					Expect(callsB.prepare.Load()).Should(BeNumerically(">", 0))
 				})
 
-				It("does not gate a preparing budget again when the deadline is pushed out", func() {
+				It("does not gate a preparing budget again when the startDate is pushed out", func() {
 					calls, hookURL := startHookServer(http.StatusTooEarly)
 					createBudget("test-notice-pushed-out", hookURL, time.Hour)
 
 					By("creating a NodeDisruption whose opening is already past")
-					key := createDisruption("test-notice-pushed-out", metav1.Time{}, nodedisruptionv1alpha1.RetrySpec{
-						Enabled:  true,
-						Deadline: metav1.NewTime(time.Now().Add(30 * time.Minute)),
+					key := createDisruption("test-notice-pushed-out", metav1.NewTime(time.Now().Add(30*time.Minute)), nodedisruptionv1alpha1.RetrySpec{
+						Enabled: true,
 					})
 
 					By("checking the budget is preparing and its readiness polled")
@@ -622,8 +619,8 @@ var _ = Describe("NodeDisruption controller", func() {
 						g.Expect(calls.ready.Load()).Should(BeNumerically(">", 0))
 					}, timeout, interval).Should(Succeed())
 
-					By("pushing the deadline out so that the opening is in the future again")
-					setDeadline(key, time.Now().Add(2*time.Hour))
+					By("pushing the startDate out so that the opening is in the future again")
+					setStartDate(key, time.Now().Add(2*time.Hour))
 
 					By("checking the budget keeps preparing")
 					Consistently(func(g Gomega) {

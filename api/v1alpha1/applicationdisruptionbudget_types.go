@@ -59,9 +59,8 @@ type ApplicationDisruptionBudgetSpec struct {
 	SupportedNodeDisruptionTypes []string `json:"supportedNodeDisruptionTypes,omitempty"`
 
 	// NoticePeriod is the notice this application wants before a disruption. Hooks for this
-	// budget are not called, and the disruption is not granted, before anchor − noticePeriod,
-	// where anchor is the disruption's spec.startDate when set, else its retry deadline.
-	// A disruption with neither is not deferred.
+	// budget are not called, and the disruption is not granted, before the disruption's
+	// spec.startDate − noticePeriod. A disruption without startDate is not deferred.
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Type=string
 	// +kubebuilder:validation:Pattern=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
