@@ -109,7 +109,8 @@ Maintenance will proceed only if the endpoint responds 2XX.<br/>
         <td>
           NoticePeriod is the notice this application wants before a disruption. Hooks for this
 budget are not called, and the disruption is not granted, before the disruption's
-spec.startDate − noticePeriod. A disruption without startDate is not deferred.<br/>
+spec.startDate − noticePeriod. A disruption without startDate is not deferred, nor is one
+with retry enabled whose retry deadline is at or before that time.<br/>
         </td>
         <td>false</td>
       </tr><tr>

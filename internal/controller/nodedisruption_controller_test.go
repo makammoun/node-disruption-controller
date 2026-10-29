@@ -555,6 +555,23 @@ var _ = Describe("NodeDisruption controller", func() {
 					}, 2*time.Second, interval).Should(Succeed())
 				})
 
+				It("does not wait for an opening after the deadline", func() {
+					calls, hookURL := startHookServer(http.StatusOK)
+					createBudget("test-notice-after-deadline", hookURL, time.Hour)
+
+					By("creating a NodeDisruption whose opening, 1h out, is after its deadline")
+					key := createDisruption("test-notice-after-deadline", metav1.NewTime(time.Now().Add(2*time.Hour)), nodedisruptionv1alpha1.RetrySpec{
+						Enabled:  true,
+						Deadline: metav1.NewTime(time.Now().Add(30 * time.Minute)),
+					})
+
+					By("checking the budget is prepared right away and the disruption granted")
+					Eventually(func(g Gomega) {
+						g.Expect(getDisruption(g, key).Status.State).Should(Equal(nodedisruptionv1alpha1.Granted))
+					}, timeout, interval).Should(Succeed())
+					Expect(calls.prepare.Load()).Should(BeNumerically(">", 0))
+				})
+
 				It("takes a startDate pulled in during the wait into account", func() {
 					calls, hookURL := startHookServer(http.StatusOK)
 					createBudget("test-notice-pulled-in", hookURL, time.Hour)

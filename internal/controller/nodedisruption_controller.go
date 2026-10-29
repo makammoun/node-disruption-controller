@@ -288,8 +288,10 @@ func (ndr *SingleNodeDisruptionReconciler) getDoNotGrantBeforeDate() metav1.Time
 }
 
 // noticeOpening returns the time before which the budget's hooks must not be called, or nil
-// when the budget has no notice for this disruption type, the disruption has no startDate, or
-// the opening is past. It is rounded up to the second, the precision of the stored retry date.
+// when the budget has no notice for this disruption type, the disruption has no startDate,
+// the opening is past, or, with retry enabled, the opening is at or after the deadline: the
+// disruption would be rejected there without the hooks ever being called. It is rounded up
+// to the second, the precision of the stored retry date.
 func (ndr *SingleNodeDisruptionReconciler) noticeOpening(budget Budget, now time.Time) *time.Time {
 	notice := budget.NoticePeriodFor(ndr.NodeDisruption.Spec.Type)
 	if notice == 0 || ndr.NodeDisruption.Spec.StartDate.IsZero() {
@@ -298,6 +300,10 @@ func (ndr *SingleNodeDisruptionReconciler) noticeOpening(budget Budget, now time
 	opening := ndr.NodeDisruption.Spec.StartDate.Add(-notice)
 	if rounded := opening.Truncate(time.Second); rounded.Before(opening) {
 		opening = rounded.Add(time.Second)
+	}
+	retry := ndr.NodeDisruption.Spec.Retry
+	if retry.Enabled && !retry.Deadline.IsZero() && !opening.Before(retry.Deadline.Time) {
+		return nil
 	}
 	if now.Before(opening) {
 		return &opening

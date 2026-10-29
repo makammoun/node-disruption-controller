@@ -93,7 +93,8 @@ spec:
                 description: |-
                   NoticePeriod is the notice this application wants before a disruption. Hooks for this
                   budget are not called, and the disruption is not granted, before the disruption's
-                  spec.startDate − noticePeriod. A disruption without startDate is not deferred.
+                  spec.startDate − noticePeriod. A disruption without startDate is not deferred, nor is one
+                  with retry enabled whose retry deadline is at or before that time.
                 pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
                 type: string
               noticePeriodOverrides:

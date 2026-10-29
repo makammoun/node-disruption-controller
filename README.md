@@ -202,7 +202,7 @@ spec:
 
 - While a budget waits, its status reads `waiting for notice period (opens at …)` and the NodeDisruption stays pending. It is re-evaluated at the opening, or after the controller's retry interval if sooner, so a rescheduled disruption is taken into account.
 - A budget without notice period is not deferred, but the NodeDisruption is still granted only once every impacted budget is ready.
-- A NodeDisruption without `startDate` is not deferred, nor is one whose opening is already past (applications can still respond with 424).
+- A NodeDisruption without `startDate` is not deferred, nor is one whose opening is already past or, with retry enabled, at or after its `retry.deadline` (applications can still respond with 424).
 - The notice is consumed once a budget has started preparing (or is ready): moving `startDate` out afterwards does not defer it again.
 
 #### Sample object
