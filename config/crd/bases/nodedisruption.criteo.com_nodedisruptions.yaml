@@ -153,6 +153,10 @@ spec:
                       - name
                       - namespace
                       type: object
+                    waiting:
+                      description: 'Waiting is set to true while the budget waits
+                        for its notice period: its hooks have not been called yet.'
+                      type: boolean
                   required:
                   - ok
                   - preparing

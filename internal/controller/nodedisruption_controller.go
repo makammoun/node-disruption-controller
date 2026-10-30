@@ -332,6 +332,7 @@ func (ndr *SingleNodeDisruptionReconciler) waitingStatus(budget Budget, opening 
 		Reason:    fmt.Sprintf("waiting for notice period (opens at %s)", opening.Format(time.RFC3339)),
 		Ok:        false,
 		Preparing: false,
+		Waiting:   true,
 	}
 }
 

@@ -545,6 +545,7 @@ var _ = Describe("NodeDisruption controller", func() {
 						statuses := getDisruption(g, key).Status.DisruptedDisruptionBudgets
 						g.Expect(statuses).Should(HaveLen(1))
 						g.Expect(statuses[0].Reason).Should(ContainSubstring("waiting for notice period"))
+						g.Expect(statuses[0].Waiting).Should(BeTrue())
 						g.Expect(statuses[0].Preparing).Should(BeFalse())
 					}, timeout, interval).Should(Succeed())
 
@@ -584,6 +585,7 @@ var _ = Describe("NodeDisruption controller", func() {
 						statuses := getDisruption(g, key).Status.DisruptedDisruptionBudgets
 						g.Expect(statuses).Should(HaveLen(1))
 						g.Expect(statuses[0].Reason).Should(ContainSubstring("waiting for notice period"))
+						g.Expect(statuses[0].Waiting).Should(BeTrue())
 					}, timeout, interval).Should(Succeed())
 
 					By("pulling the startDate in so that the notice period is open")
@@ -594,6 +596,10 @@ var _ = Describe("NodeDisruption controller", func() {
 						g.Expect(getDisruption(g, key).Status.State).Should(Equal(nodedisruptionv1alpha1.Granted))
 					}, timeout, interval).Should(Succeed())
 					Expect(calls.prepare.Load()).Should(BeNumerically(">", 0))
+					statuses := getDisruption(Default, key).Status.DisruptedDisruptionBudgets
+					Expect(statuses).Should(HaveLen(1))
+					Expect(statuses[0].Preparing).Should(BeTrue())
+					Expect(statuses[0].Waiting).Should(BeFalse())
 				})
 
 				It("prepares a budget without notice while another waits", func() {
@@ -645,6 +651,7 @@ var _ = Describe("NodeDisruption controller", func() {
 						g.Expect(statuses).Should(HaveLen(1))
 						g.Expect(statuses[0].Preparing).Should(BeTrue())
 						g.Expect(statuses[0].Reason).ShouldNot(ContainSubstring("waiting for notice period"))
+						g.Expect(statuses[0].Waiting).Should(BeFalse())
 					}, 2*time.Second, interval).Should(Succeed())
 
 					By("checking the terminate hook is called on deletion")

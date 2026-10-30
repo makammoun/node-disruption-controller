@@ -1027,6 +1027,13 @@ NodeDisruptionStatus defines the observed state of NodeDisruption (/!\ it is eve
           This is the same as types.NamespacedName but serialisable to JSON<br/>
         </td>
         <td>false</td>
+      </tr><tr>
+        <td><b>waiting</b></td>
+        <td>boolean</td>
+        <td>
+          Waiting is set to true while the budget waits for its notice period: its hooks have not been called yet.<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
