@@ -184,7 +184,7 @@ Note: It is not a replacement for readiness probes but a complement.
 
 #### Notice period
 
-A budget can require advance notice before a disruption. Its hooks (health hook or V2 prepare/ready/terminate) are not called, and the disruption is not granted, before `startDate − noticePeriod`, where `startDate` is the NodeDisruption's `spec.startDate`. Use `noticePeriodOverrides` to set a different notice period for specific disruption types; overrides take precedence over the global `noticePeriod`.
+A budget can require advance notice before a disruption. Its hooks (health hook or V2 prepare/ready/terminate) are not called, and the disruption is not granted, before `startDate − noticePeriod`, where `startDate` is the NodeDisruption's `spec.startDate`. Use `noticePeriodOverrides` to set a different notice period for specific disruption types; overrides take precedence over the global `noticePeriod`. Notice periods are whole hours, minutes and seconds, such as `30m` or `1h30m`.
 
 ```yaml
 spec:

@@ -37,7 +37,6 @@ func TestNoticeOpening(t *testing.T) {
 		{"deadline alone does not gate", time.Hour, zero, true, deadline, time.Time{}},
 		{"no anchor no gating", time.Hour, zero, true, zero, time.Time{}},
 		{"past opening is open", 4 * time.Hour, start, true, deadline, time.Time{}},
-		{"sub-second opening rounds up", time.Hour + 1500*time.Millisecond, start, true, deadline, start.Add(-time.Hour - time.Second)},
 		{"opening after deadline is open", time.Hour, start, true, earlyDeadline, time.Time{}},
 		{"opening at deadline is open", time.Hour, start, true, openingDeadline, time.Time{}},
 		{"deadline ignored without retry", time.Hour, start, false, earlyDeadline, start.Add(-time.Hour)},

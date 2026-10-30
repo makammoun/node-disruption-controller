@@ -61,10 +61,11 @@ type ApplicationDisruptionBudgetSpec struct {
 	// NoticePeriod is the notice this application wants before a disruption. Hooks for this
 	// budget are not called, and the disruption is not granted, before the disruption's
 	// spec.startDate − noticePeriod. A disruption without startDate is not deferred, nor is one
-	// with retry enabled whose retry deadline is at or before that time.
+	// with retry enabled whose retry deadline is at or before that time. Notice periods are
+	// whole hours, minutes and seconds, such as 30m or 1h30m.
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Type=string
-	// +kubebuilder:validation:Pattern=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
+	// +kubebuilder:validation:Pattern=`^([0-9]+(h|m|s))+$`
 	NoticePeriod *metav1.Duration `json:"noticePeriod,omitempty"`
 
 	// NoticePeriodOverrides overrides NoticePeriod for specific disruption types.
@@ -80,7 +81,7 @@ type TypedNoticePeriod struct {
 	Type string `json:"type"`
 	// NoticePeriod for disruptions of this type.
 	// +kubebuilder:validation:Type=string
-	// +kubebuilder:validation:Pattern=`^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$`
+	// +kubebuilder:validation:Pattern=`^([0-9]+(h|m|s))+$`
 	NoticePeriod metav1.Duration `json:"noticePeriod"`
 }
 
